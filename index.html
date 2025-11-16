@@ -1,161 +1,172 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Random Món Ăn Mỗi Ngày</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bản đồ mưa (nhúng vrain.vn)</title>
   <style>
-    :root {
-      --primary: #ff7f50;
-      --secondary: #ffb38a;
-      --bg: #fff8f3;
-      --text: #333;
+    :root{
+      --bg:#f7f7f8;
+      --primary:#0077b6;
+      --accent:#00b4d8;
+      --text:#0b1320;
+      --card:#ffffff;
     }
-
-    body {
-      font-family: "Segoe UI", sans-serif;
-      background: var(--bg);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;color:var(--text);background:var(--bg)}
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 16px;
+      background:linear-gradient(90deg,var(--card),#fff);
+      box-shadow:0 2px 6px rgba(2,6,23,0.06);
+      position:sticky;
+      top:0;
+      z-index:10;
     }
-
-    .container {
-      width: 90%;
-      max-width: 480px;
-      background: white;
-      padding: 28px;
-      border-radius: 18px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.1);
-      text-align: center;
-      border: 3px solid var(--secondary);
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center;
     }
-
-    h1 {
-      margin-top: 0;
-      color: var(--primary);
+    .logo{
+      width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;
+      box-shadow:0 2px 6px rgba(0,0,0,0.08);
     }
-
-    .result-box {
-      margin-top: 18px;
-      padding: 18px;
-      background: var(--secondary);
-      border-radius: 14px;
-      color: #fff;
-      font-size: 17px;
-      text-align: left;
+    h1{font-size:16px;margin:0}
+    .actions{display:flex;gap:8px;align-items:center}
+    .btn{
+      padding:8px 12px;border-radius:8px;border:0;background:var(--primary);color:#fff;font-weight:600;cursor:pointer;
+      text-decoration:none;display:inline-flex;align-items:center;gap:8px;
     }
-
-    .result-box p {
-      margin: 6px 0;
-      font-weight: 600;
+    .btn.ghost{background:transparent;color:var(--primary);border:1px solid rgba(0,119,182,0.12)}
+    .wrap{
+      height: calc(100vh - 72px);
+      padding:12px;
     }
-
-    button {
-      width: 100%;
-      margin-top: 18px;
-      padding: 14px;
-      font-size: 18px;
-      border: none;
-      border-radius: 12px;
-      background: var(--primary);
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.25s;
+    .frame-card{
+      height:100%;
+      background:var(--card);
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 6px 20px rgba(2,6,23,0.06);
+      position:relative;
+      border:1px solid rgba(10,10,10,0.03);
     }
-
-    button:hover {
-      background: #ff6a36;
+    .responsive-iframe{
+      width:100%;
+      height:100%;
+      border:0;
+      display:block;
     }
-
-    @media (max-width: 480px) {
-      h1 { font-size: 22px; }
-      button { font-size: 16px; }
-      .result-box { font-size: 15px; }
+    .overlay{
+      position:absolute;left:0;right:0;top:0;bottom:0;
+      display:flex;align-items:center;justify-content:center;flex-direction:column;
+      background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2));
+      backdrop-filter: blur(2px);
+      transition:opacity .25s ease;
+    }
+    .hidden{display:none}
+    .spinner{
+      width:48px;height:48px;border-radius:50%;border:5px solid rgba(0,0,0,0.08);border-top-color:var(--primary);animation:spin 1s linear infinite;
+      margin-bottom:12px;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .message{max-width:720px;padding:12px;text-align:center;color:#123;line-height:1.4}
+    .hint-link{color:var(--primary);text-decoration:underline;cursor:pointer}
+    .note{font-size:13px;color:#666;margin-top:6px}
+    @media (max-width:520px){
+      .topbar{padding:10px}
+      .brand h1{font-size:14px}
+      .wrap{padding:8px;height: calc(100vh - 64px)}
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🍽️ Gợi ý món ăn hôm nay</h1>
-
-    <p>Mỗi lần bấm sẽ tự chọn 1 món Canh – 1 món Mặn – 1 món Rau không trùng 2 ngày gần nhất.</p>
-
-    <div class="result-box">
-      <p id="canh">Canh: ...</p>
-      <p id="man">Mặn: ...</p>
-      <p id="rau">Rau: ...</p>
+  <div class="topbar" role="navigation" aria-label="Topbar">
+    <div class="brand">
+      <div class="logo">M</div>
+      <div>
+        <h1>Bản đồ mưa — Nhúng vrain.vn</h1>
+        <div class="note">Nguồn: vrain.vn (windy)</div>
+      </div>
     </div>
 
-    <button onclick="generateMeal()">Random món hôm nay</button>
+    <div class="actions">
+      <a id="openBtn" class="btn" target="_blank" rel="noopener noreferrer" href="https://www.vrain.vn/34/overview?public_map=windy">
+        Mở bản đồ gốc
+      </a>
+      <button id="reloadBtn" class="btn ghost" title="Tải lại iframe">Tải lại</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="frame-card" id="frameCard">
+      <div id="overlay" class="overlay">
+        <div class="spinner" aria-hidden="true"></div>
+        <div class="message">
+          Đang tải bản đồ...<div class="note">Nếu trang không hiển thị sau vài giây, có thể trang gốc không cho phép nhúng (X-Frame-Options). Bạn có thể mở bản đồ gốc bằng nút <strong>Mở bản đồ gốc</strong>.</div>
+        </div>
+      </div>
+
+      <iframe id="rainFrame"
+        class="responsive-iframe"
+        src="https://www.vrain.vn/34/overview?public_map=windy"
+        title="Bản đồ mưa - vrain.vn"
+        allowfullscreen
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+      ></iframe>
+    </div>
   </div>
 
   <script>
-    const monCanh = [
-  "Canh rau muống", "Canh chua cá lóc", "Canh bí đỏ thịt bằm", "Canh cua rau đay", "Canh khoai mỡ tôm",
-  "Canh cải xanh thịt bằm", "Canh bầu nấu tôm", "Canh mọc nấm", "Canh dưa chua thịt bò", "Canh sườn hầm củ cải",
-  "Canh nghêu nấu rau răm", "Canh tôm nấu bầu", "Canh trứng cà chua", "Canh bí xanh nấu gừng",
-  "Canh gà nấu nấm", "Canh đậu hũ rong biển", "Canh khoai tây cà rốt hầm xương", "Canh cá rô cải xanh",
-  "Canh cá diêu hồng nấu thơm", "Canh kim chi thịt bò"
-];
+    (function(){
+      const iframe = document.getElementById('rainFrame');
+      const overlay = document.getElementById('overlay');
+      const openBtn = document.getElementById('openBtn');
+      const reloadBtn = document.getElementById('reloadBtn');
 
-    const monMan = [
-  "Thịt kho trứng", "Cá kho tộ", "Gà xào sả ớt", "Tôm rang mặn", "Sườn rim mặn ngọt",
-  "Thịt heo chiên giòn", "Mực xào sa tế", "Đậu hũ chiên sốt cà", "Gà kho gừng", "Cá nục kho cà",
-  "Ba rọi rim mắm ruốc", "Sườn xào chua ngọt", "Thịt bò xào hành tây", "Mực chiên nước mắm",
-  "Chả cá sốt cà", "Cánh gà chiên giòn", "Tép rang dừa", "Cá basa chiên sả ớt",
-  "Trứng chiên thịt bằm", "Xíu mại sốt cà", "Thịt kho tiêu", "Cá thu kho thơm"
-];
+      let loaded = false;
+      // Một số trang chặn iframe; onload có thể không chạy hoặc chạy nhanh tùy trình duyệt.
+      iframe.addEventListener('load', () => {
+        // Nếu iframe contentWindow bị null do chặn, vẫn có thể nhận event load.
+        loaded = true;
+        overlay.style.display = 'none';
+      });
 
-    const monRau = [
-  "Rau muống xào tỏi", "Cải thìa xào dầu hào", "Đậu que xào thịt bằm", "Nấm xào bơ tỏi",
-  "Rau muống luộc", "Su su xào trứng", "Bông cải luộc", "Đậu bắp luộc",
-  "Cải xoong trộn dầu giấm", "Rau lang xào tỏi", "Bí xanh xào thịt", "Cải ngọt luộc",
-  "Bắp cải xào cà chua", "Rau củ thập cẩm xào", "Bông cải xào nấm", "Giá hẹ xào trứng",
-  "Salad trứng mayonnaise", "Rau má trộn thịt bò"
-];
+      // Nếu sau 6 giây vẫn chưa load thì hiển thị cảnh báo/nút mở trang gốc
+      const checkTimeout = setTimeout(() => {
+        if (!loaded) {
+          overlay.innerHTML = `
+            <div class="message">
+              Không thể hiển thị bản đồ trong iframe — trang có thể chặn nhúng.<br>
+              <div style="margin-top:12px">
+                <a href="${iframe.src}" target="_blank" rel="noopener noreferrer" class="btn">Mở bản đồ gốc</a>
+                <button id="tryAgain" class="btn ghost" style="margin-left:8px">Thử lại nhúng</button>
+              </div>
+              <div class="note">Nếu bạn cần nhúng thực sự, có thể dùng proxy hoặc API chính chủ của dịch vụ (nếu có).</div>
+            </div>
+          `;
+          const tryBtn = document.getElementById('tryAgain');
+          tryBtn && tryBtn.addEventListener('click', () => {
+            overlay.innerHTML = '<div class=\"spinner\" style=\"margin-bottom:12px\"></div><div class=\"message\">Đang thử tải lại...</div>';
+            iframe.src = iframe.src; // reload
+            setTimeout(()=>{ if(!loaded) overlay.style.display='flex'; }, 300);
+          });
+        }
+      }, 6000);
 
-    function randomNonRepeat(list, recent) {
-      const filtered = list.filter(item => !recent.includes(item));
-      return filtered[Math.floor(Math.random() * filtered.length)];
-    }
+      // nút reload
+      reloadBtn.addEventListener('click', () => {
+        overlay.style.display = 'flex';
+        overlay.innerHTML = '<div class="spinner" aria-hidden="true"></div><div class="message">Đang tải lại...</div>';
+        loaded = false;
+        iframe.src = iframe.src;
+      });
 
-    function loadHistory() {
-      const data = localStorage.getItem("lich_su_mon_an");
-      return data ? JSON.parse(data) : [];
-    }
-
-    function saveHistory(entry) {
-      let history = loadHistory();
-      history.unshift(entry);
-      history = history.slice(0, 3);
-      localStorage.setItem("lich_su_mon_an", JSON.stringify(history));
-    }
-
-    function generateMeal() {
-      const history = loadHistory();
-      const last2 = history.slice(0, 2);
-
-      const recentCanh = last2.map(d => d.canh);
-      const recentMan = last2.map(d => d.man);
-      const recentRau = last2.map(d => d.rau);
-
-      const today = {
-        canh: randomNonRepeat(monCanh, recentCanh),
-        man: randomNonRepeat(monMan, recentMan),
-        rau: randomNonRepeat(monRau, recentRau)
-      };
-
-      document.getElementById("canh").textContent = "Canh: " + today.canh;
-      document.getElementById("man").textContent = "Mặn: " + today.man;
-      document.getElementById("rau").textContent = "Rau: " + today.rau;
-
-      saveHistory(today);
-    }
+    })();
   </script>
 </body>
 </html>
